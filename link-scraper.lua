@@ -2,11 +2,18 @@ local http = require "socket.http"
 local ltn12 = require "ltn12"
 
 local function http_request(url)
-    url = (url and url ~= "") or "https://odanisesquea.dev/"
-    local resp, r = {}, {}
-    local _, code, headers, status = http.request{ url=url, sink=ltn12.sink.table(resp) }
-    r['code'], r['headers'], r['status'], r['response'] = code, headers, status, resp
-    return r
+  if url and url ~= "" then
+    url = url
+    if not string.find(url, "http[s]?://") then
+      url = "http://" .. url
+    end
+  else
+    url = "https://odanisesquea.dev/"
+  end
+  local resp, r = {}, {}
+  local _, code, headers, status = http.request{ url=url, sink=ltn12.sink.table(resp) }
+  r['code'], r['headers'], r['status'], r['response'] = code, headers, status, resp
+  return r
 end
 
 local function get_links(http_c)
@@ -19,7 +26,7 @@ local function get_links(http_c)
   return links
 end
 
-io.write("enter the web address(example: https://google.com): ")
+io.write("enter the web address(example: https://google.com or google.com): ")
 local web = io.read()
 
 local http_content = http_request(web).response[1]
